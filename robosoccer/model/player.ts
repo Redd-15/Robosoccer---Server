@@ -6,6 +6,7 @@ export interface Player {
   socketId: string,
   name: string,
   team: TeamType | null,
-  isSpymaster: boolean,
-  isInactive: boolean
+  isInactive: boolean,
+  x: number,
+  y: number
 }

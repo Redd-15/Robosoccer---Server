@@ -4,7 +4,6 @@ import { Server as HttpServer } from "http";
 import { ServerMessageType, ClientMessageType } from "../../model"
 import { ServerHandlers } from "./handlers";
 import { RobosoccerDatabase } from "./database";
-import { JoinMessage } from "../../model/message-interfaces";
 
 /** Realises the server side of socket communication */
 export class SocketHandler {
@@ -42,14 +41,9 @@ export class SocketHandler {
       socket.on(ClientMessageType.JoinRoom, (join) => this.handlers?.joinRoomHandler(socket, join.username, join.roomId));
       socket.on(ClientMessageType.LeaveRoom, (content) => this.handlers?.leaveRoomHandler(socket));
       socket.on(ClientMessageType.GetId, (content) => this.handlers?.getIdHandler(socket));
-      socket.on(ClientMessageType.PickPosition, (content) => this.handlers?.pickPositionHandler(socket, content.team, content.spymaster));
+      socket.on(ClientMessageType.PickPosition, (content) => this.handlers?.pickTeamHandler(socket, content.team, content.spymaster));
       socket.on(ClientMessageType.StartGame, (content) => this.handlers?.startGameHandler(socket));
-      socket.on(ClientMessageType.GiveHint, (content) => this.handlers?.giveHintHandler(socket, content.word, content.number));
-      socket.on(ClientMessageType.MakeGuess, (content) => this.handlers?.makeGuessHandler(socket, content.guess));
-      socket.on(ClientMessageType.EndGuessing, (content) => this.handlers?.endGuessingHandler(socket));
       socket.on(ClientMessageType.RestartGame, (content) => this.handlers?.restartGameHandler(socket));
-      socket.on(ClientMessageType.SendTeamMessage, (content) => this.handlers?.sendTeamMessageHandler(socket, content));
-      socket.on(ClientMessageType.SendGlobalMessage, (content) => this.handlers?.sendGlobalMessageHandler(socket, content));
 
       socket.on('disconnect', () => {
         this.handlers?.disconnectHandler(socket); // Call leaveRoomHandler on disconnect
