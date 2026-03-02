@@ -41,12 +41,6 @@ export interface MovementMessage {
   y: number | null
 }
 
-export interface PositionsMessage {
-  players: Player[]
-  ball: Ball
-}
-
-
 /** Error message type */
 export interface ErrorMessage {
   errorType: ErrorType,

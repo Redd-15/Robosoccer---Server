@@ -245,6 +245,16 @@ export class ServerHandlers {
         }
     }
 
+    public movementMessageHandler(socket: Socket, x: any, y: any) {
+        console.log(`Client ${socket.id} sent movement message: x=${x}, y=${y}`);
+        const room = this.database.handleMovement(socket.id, x, y); // Handle the movement in the database
+        if (room) {
+            this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room); // Send a message back to the client
+        } else {
+            this.roomNotFoundError(socket); // If the room does not exist, send an error message
+        }
+    }
+
     private roomNotFoundError(socket: Socket) {
         console.log(`Client ${socket.id} does not have an existing room`);
 

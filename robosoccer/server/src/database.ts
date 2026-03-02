@@ -20,7 +20,9 @@ export class RobosoccerDatabase {
       team: TeamType.Blue, // Team will be default Blue
       isInactive: false, // Default to false
       x: 0, // Default x position
-      y: 0  // Default y position
+      y: 0,  // Default y position
+      x_velocity: 0, // Default x velocity
+      y_velocity: 0, // Default y velocity
     };
     return newPlayer; // Return the new player object
   }
@@ -34,7 +36,7 @@ export class RobosoccerDatabase {
       players: [this.createPlayer(username, roomId*10000 + 0, socketId)],
       isStarted: false,
       winner: null, // No winner at the start
-      ball: {x: 500, y: 500} // Initial position of the ball
+      ball: {x: 500, y: 500, x_velocity: 0, y_velocity: 0} // Initial position of the ball
     };
     this.roomdb.push(newRoom); // Assign the new room to the database
     console.log("Rooms open: " + this.roomdb.length);
@@ -133,6 +135,21 @@ export class RobosoccerDatabase {
     return null; // Return null if the room does not exist
   }
 
+  public handleMovement(socketId: string, x: number, y: number): Room | null {
+
+    const room = this.getRoomBySocketId(socketId); // Get the room ID from the socket ID
+    if (room) {
+      // Find the player by socket ID in the room
+      const player = room.players.find(player => player.socketId === socketId);
+      if (player) {
+        player.x_velocity += x; // Update the player's x position
+        player.y_velocity += y; // Update the player's y position
+        return room; // Return the room
+      }
+    }
+    return null; // Return null if the room does not exist
+  }
+
   public gameOver(socketId: string, guess: number ): Room | null {
 
     // Find the room by socket ID
@@ -155,7 +172,7 @@ export class RobosoccerDatabase {
     if (room) {
       room.isStarted = false; // Set the room's isStarted property to false
       room.winner = null; // No winner at the start
-      room.ball = {x: 500, y: 500}; // Reset ball position
+      room.ball = {x: 500, y: 500, x_velocity: 0, y_velocity: 0}; // Reset ball position
 
 
       return room; // Return the updated room
@@ -224,6 +241,10 @@ export class RobosoccerDatabase {
       }
     }
     return null; // Return null if the player does not exist
+  }
+
+  public getAllRooms(): Room[] {
+    return this.roomdb;
   }
 
   private generateUniqueRoomId(): number {

@@ -4,22 +4,53 @@ import { Server as HttpServer } from "http";
 import { ServerMessageType, ClientMessageType } from "../../model"
 import { ServerHandlers } from "./handlers";
 import { RobosoccerDatabase } from "./database";
+import { GameConfig } from "./constants";
+import { PhysicsEngine } from "./physicsengine";
 
 /** Realises the server side of socket communication */
 export class SocketHandler {
 
   private io: Server;
-  private handlers: ServerHandlers | null; // Initialize handlers to null
-  private database: RobosoccerDatabase; // Database instance
+  private handlers: ServerHandlers | null;
+  private database: RobosoccerDatabase; 
+  
+  // NEW: Add the physics engine property
+  private physicsEngine: PhysicsEngine; 
 
   constructor(httpServer: HttpServer<typeof IncomingMessage, typeof ServerResponse> | Partial<ServerOptions>, database: RobosoccerDatabase) {
     this.io = new Server(httpServer);
-    this.database = database
-    this.handlers = null; // Initialize handlers with null socket instance
+    this.database = database;
+    this.handlers = null; 
+    
+    // NEW: Initialize the physics engine
+    this.physicsEngine = new PhysicsEngine(); 
+
     this.setUp();
 
+    // NEW: Start the loop as soon as the server boots up!
+    this.startGameLoop(); 
   }
 
+  // NEW: Add the loop method right here
+  private startGameLoop() {
+    // This setInterval runs continuously based on your TICK_RATE (e.g., 60 times a second)
+    setInterval(() => {
+      // 1. Get all rooms that are currently playing
+      const activeRooms = this.database.getAllRooms().filter(room => room.isStarted);
+      
+      // 2. Calculate the physics for each active room
+      activeRooms.forEach(room => {
+        this.physicsEngine.updateRoom(room);
+        
+        // 3. Send the updated room back to the clients
+        this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room);
+
+      });
+      
+    }, GameConfig.TICK_RATE);
+  }
+
+  
   private setUp() {
     //Configure listener for socket connection
     this.handlers = new ServerHandlers(this.io, this.database);
@@ -44,6 +75,7 @@ export class SocketHandler {
       socket.on(ClientMessageType.PickPosition, (content) => this.handlers?.pickTeamHandler(socket, content.team, content.spymaster));
       socket.on(ClientMessageType.StartGame, (content) => this.handlers?.startGameHandler(socket));
       socket.on(ClientMessageType.RestartGame, (content) => this.handlers?.restartGameHandler(socket));
+      socket.on(ClientMessageType.MovementMessage, (content) => this.handlers?.movementMessageHandler(socket, content.x, content.y));
 
       socket.on('disconnect', () => {
         this.handlers?.disconnectHandler(socket); // Call leaveRoomHandler on disconnect

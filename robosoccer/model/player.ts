@@ -8,5 +8,7 @@ export interface Player {
   team: TeamType | null,
   isInactive: boolean,
   x: number,
-  y: number
+  y: number,
+  x_velocity: number,
+  y_velocity: number,
 }

@@ -28,5 +28,5 @@ export enum ClientMessageType {
   PickPosition = 'pickPosition',
   StartGame = 'startGame',
   RestartGame = 'restartGame',
-  positionMessage = 'positionMessage'
+  MovementMessage = 'movementMessage'
 }
