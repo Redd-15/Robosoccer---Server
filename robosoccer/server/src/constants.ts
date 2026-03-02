@@ -7,8 +7,8 @@ export const GameConfig = {
     BALL_RADIUS: 15,
     FRICTION: 0.98, // Multiplier to slow down objects over time
     BOUNCE_RESTITUTION: 0.8, // Energy kept after a bounce (0 to 1)
-    // Add goal boundaries (e.g., a goal in the middle of the Y-axis, 200 units wide)
-    GOAL_MIN_Y: 400,
+    GOAL_MIN_Y: 400, // Add goal boundaries (e.g., a goal in the middle of the Y-axis, 200 units wide)
     GOAL_MAX_Y: 600,
     WIN_SCORE: 3, // Play until 3 goals
+    COUNTDOWN_SEC: 3, // Countdown in ticks (e.g., 5 seconds at 60 FPS = 300 ticks)
 };

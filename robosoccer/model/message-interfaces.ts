@@ -56,4 +56,5 @@ export interface GameConfigMessage {
     goalMinY: number;
     goalMaxY: number;
     winScore: number;
+    countdown: number;
 }

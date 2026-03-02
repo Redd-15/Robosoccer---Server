@@ -6,9 +6,17 @@ export class PhysicsEngine {
     
 public updateRoom(room: Room) {
 
-        let goalScored = false;
-        // 1. Update positions based on velocities
+    if (room.isStarted) {
+
+        if (room.countdownTicks > 0) {
+
+            room.countdownTicks --; // Decrease countdown
+            return; // Skip the rest of the loop for this room
+        }
+
+        //Update positions based on velocities
         room.players.forEach(p => {
+
             p.x += p.x_velocity;
             p.y += p.y_velocity;
             p.x_velocity *= GameConfig.FRICTION; // Apply friction
@@ -22,25 +30,20 @@ public updateRoom(room: Room) {
         room.ball.x_velocity *= GameConfig.FRICTION;
         room.ball.y_velocity *= GameConfig.FRICTION;
         // Pass a flag to indicate this is the ball
-        goalScored = this.handleWallCollision(room.ball, GameConfig.BALL_RADIUS, true, room);
+        let goalScored = this.handleWallCollision(room.ball, GameConfig.BALL_RADIUS, true, room);
 
         if (goalScored) {
             // If a goal was scored, we can skip player collisions for this tick
             return;
         }
 
-        // 2. Check collisions between Players and the Ball
+        // Check collisions between Players and the Ball
         room.players.forEach(p => {
             this.handleCircleCollision(p, room.ball, GameConfig.PLAYER_RADIUS, GameConfig.BALL_RADIUS);
         });
-
-        // 3. (Optional) Check collisions between Players
-        for (let i = 0; i < room.players.length; i++) {
-            for (let j = i + 1; j < room.players.length; j++) {
-                this.handleCircleCollision(room.players[i], room.players[j], GameConfig.PLAYER_RADIUS, GameConfig.PLAYER_RADIUS);
-            }
-        }
     }
+}
+
 private handleWallCollision(entity: any, radius: number, isBall: boolean = false, room?: Room): boolean {
         let goalScored = false;
 
@@ -97,6 +100,8 @@ private handleWallCollision(entity: any, radius: number, isBall: boolean = false
                 p.y_velocity = 0;
                 // e.g., p.x = p.team === TeamType.Blue ? 200 : 800;
             });
+
+            room.countdownTicks = GameConfig.COUNTDOWN_SEC * GameConfig.FPS; // Start countdown for next round
         }
     }
 

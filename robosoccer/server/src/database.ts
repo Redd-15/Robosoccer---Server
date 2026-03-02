@@ -1,6 +1,7 @@
 import { Room } from "../../model/room"
 import { Player } from "../../model/player"
 import { TeamType } from "../../model/message-interfaces";
+import { GameConfig } from "./constants";
 
 export class RobosoccerDatabase {
   // This class will handle the database connection and queries
@@ -40,8 +41,10 @@ export class RobosoccerDatabase {
       score: {
         [TeamType.Blue]: 0,
         [TeamType.Red]: 0,
-      }
+      },
+      countdownTicks: GameConfig.COUNTDOWN_SEC * GameConfig.FPS // Initialize countdown ticks
     };
+
     this.roomdb.push(newRoom); // Assign the new room to the database
     console.log("Rooms open: " + this.roomdb.length);
 
@@ -84,6 +87,7 @@ export class RobosoccerDatabase {
     const room = this.getRoomBySocketId(socketId); // Get the room ID from the socket ID
     if (room) {
       room.isStarted = true; // Set the room's isStarted property to true
+      room.countdownTicks = GameConfig.COUNTDOWN_SEC * GameConfig.FPS; // Initialize countdown ticks
 
       return room; // Return the updated room
     }
@@ -145,16 +149,16 @@ export class RobosoccerDatabase {
     if (room) {
       // Find the player by socket ID in the room
       const player = room.players.find(player => player.socketId === socketId);
-      if (player) {
+      if (player && room.countdownTicks === 0) { // Only allow movement if the player exists and countdown is not active
         player.x_velocity += x; // Update the player's x position
         player.y_velocity += y; // Update the player's y position
-        return room; // Return the room
       }
+      return room; // Return the room
     }
     return null; // Return null if the room does not exist
   }
 
-  public gameOver(socketId: string, guess: number ): Room | null {
+  public gameOver(socketId: string ): Room | null {
 
     // Find the room by socket ID
     const room = this.getRoomBySocketId(socketId); // Get the room ID from the socket ID
@@ -181,6 +185,7 @@ export class RobosoccerDatabase {
         [TeamType.Blue]: 0,
         [TeamType.Red]: 0,
       }; // Reset scores
+      room.countdownTicks = GameConfig.COUNTDOWN_SEC * GameConfig.FPS; // Reset countdown ticks
 
       return room; // Return the updated room
     }
