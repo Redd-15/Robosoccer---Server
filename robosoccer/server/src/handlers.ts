@@ -4,6 +4,7 @@ import { Socket, Server } from "socket.io";
 import { RobosoccerDatabase } from "./database";
 import { ServerMessageType } from "../../model";
 import { ErrorMessage, ErrorType, IdMessage, TeamType } from "../../model/message-interfaces";
+import { GameConfig } from "./constants";
 
 
 // Import necessary types from the model
@@ -54,13 +55,20 @@ export class ServerHandlers {
                 roomId: room.roomId, // Room ID from the created room
             };
 
-
-
             this.io.to(socket.id).emit(ServerMessageType.ReceiveId, idmessage); // Send the socket ID back to the client
-            socket.join(room.roomId.toString()); // Join the room in the socket
             this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room); // Send a message back to the client
-
+            this.io.to(socket.id).emit(ServerMessageType.ReceiveConfig, {
+            fieldWidth: GameConfig.FIELD_WIDTH,
+            fieldHeight: GameConfig.FIELD_HEIGHT,
+            playerRadius: GameConfig.PLAYER_RADIUS,
+            ballRadius: GameConfig.BALL_RADIUS,
+            goalMinY: GameConfig.GOAL_MIN_Y,
+            goalMaxY: GameConfig.GOAL_MAX_Y,
+            winScore: GameConfig.WIN_SCORE
+            });
+            socket.join(room.roomId.toString()); // Join the room in the socket
             console.log(`Client ${socket.id} joined back to room (${room.roomId})`);
+
             return true;
         } else {
             console.log(`Client ${socket.id} does not have an existing room`);
@@ -87,6 +95,15 @@ export class ServerHandlers {
 
             this.io.to(socket.id).emit(ServerMessageType.ReceiveId, idmessage); // Send the socket ID back to the client
             this.io.to(socket.id).emit(ServerMessageType.ReceiveRoom, room); // Send a message back to the client
+            this.io.to(socket.id).emit(ServerMessageType.ReceiveConfig, {
+                fieldWidth: GameConfig.FIELD_WIDTH,
+                fieldHeight: GameConfig.FIELD_HEIGHT,
+                playerRadius: GameConfig.PLAYER_RADIUS,
+                ballRadius: GameConfig.BALL_RADIUS,
+                goalMinY: GameConfig.GOAL_MIN_Y,
+                goalMaxY: GameConfig.GOAL_MAX_Y,
+                winScore: GameConfig.WIN_SCORE
+            });
             socket.join(room.roomId.toString()); // Join the room in the socket
             console.log(`Client ${socket.id} tried to create new room while having an already existing one (${room.roomId})`);
             return; // Return the room if it exists
@@ -105,9 +122,17 @@ export class ServerHandlers {
 
         this.io.to(socket.id).emit(ServerMessageType.ReceiveId, idmessage); // Send the socket ID back to the client
         this.io.to(socket.id).emit(ServerMessageType.ReceiveRoom, room); // Send a message back to the client
-        console.log(`Client (SID: ${socket.id}) created room (ID: ${room.roomId}) with username: ${username}`);
+        this.io.to(socket.id).emit(ServerMessageType.ReceiveConfig, {
+            fieldWidth: GameConfig.FIELD_WIDTH,
+            fieldHeight: GameConfig.FIELD_HEIGHT,
+            playerRadius: GameConfig.PLAYER_RADIUS,
+            ballRadius: GameConfig.BALL_RADIUS,
+            goalMinY: GameConfig.GOAL_MIN_Y,
+            goalMaxY: GameConfig.GOAL_MAX_Y,
+            winScore: GameConfig.WIN_SCORE
+        });
         socket.join(room.roomId.toString()); // Join the room in the socket
-
+        console.log(`Client (SID: ${socket.id}) created room (ID: ${room.roomId}) with username: ${username}`);
     }
 
     public joinRoomHandler(socket: Socket, username: string, roomId: number) {
@@ -135,6 +160,15 @@ export class ServerHandlers {
 
             this.io.to(socket.id).emit(ServerMessageType.ReceiveId, idmessage); // Send the socket ID back to the client
             this.io.to(socket.id).emit(ServerMessageType.ReceiveRoom, room); // Send a message back to the client
+            this.io.to(socket.id).emit(ServerMessageType.ReceiveConfig, {
+            fieldWidth: GameConfig.FIELD_WIDTH,
+            fieldHeight: GameConfig.FIELD_HEIGHT,
+            playerRadius: GameConfig.PLAYER_RADIUS,
+            ballRadius: GameConfig.BALL_RADIUS,
+            goalMinY: GameConfig.GOAL_MIN_Y,
+            goalMaxY: GameConfig.GOAL_MAX_Y,
+            winScore: GameConfig.WIN_SCORE
+            });
             socket.join(room.roomId.toString()); // Join the room in the socket
 
             console.log(`Client ${socket.id} tried to create new room while having an already existing one (${room.roomId})`);

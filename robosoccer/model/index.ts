@@ -14,7 +14,8 @@ export enum ServerMessageType {
   ReceiveRoom = 'receiveRoom',
   GameOver = 'gameOver',
   Error = 'error',
-  ReconnectAck = 'reconnectAck'
+  ReconnectAck = 'reconnectAck',
+  ReceiveConfig = 'receive-config'
 }
 
 /** Enum for message types FROM CLIENT */

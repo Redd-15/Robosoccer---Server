@@ -46,3 +46,14 @@ export interface ErrorMessage {
   errorType: ErrorType,
   message: string
 }
+
+// Add this to message-interfaces.ts
+export interface GameConfigMessage {
+    fieldWidth: number;
+    fieldHeight: number;
+    playerRadius: number;
+    ballRadius: number;
+    goalMinY: number;
+    goalMaxY: number;
+    winScore: number;
+}
