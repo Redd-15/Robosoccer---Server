@@ -41,12 +41,12 @@ export class SocketHandler {
       // 2. Calculate the physics for each active room
       activeRooms.forEach(room => {
         this.physicsEngine.updateRoom(room);
-        
+
         // 3. Send the updated room back to the clients
         this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room);
 
       });
-      
+
     }, GameConfig.TICK_RATE);
   }
 

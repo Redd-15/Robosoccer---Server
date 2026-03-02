@@ -36,7 +36,11 @@ export class RobosoccerDatabase {
       players: [this.createPlayer(username, roomId*10000 + 0, socketId)],
       isStarted: false,
       winner: null, // No winner at the start
-      ball: {x: 500, y: 500, x_velocity: 0, y_velocity: 0} // Initial position of the ball
+      ball: {x: 500, y: 500, x_velocity: 0, y_velocity: 0}, // Initial position of the ball
+      score: {
+        [TeamType.Blue]: 0,
+        [TeamType.Red]: 0,
+      }
     };
     this.roomdb.push(newRoom); // Assign the new room to the database
     console.log("Rooms open: " + this.roomdb.length);
@@ -173,7 +177,10 @@ export class RobosoccerDatabase {
       room.isStarted = false; // Set the room's isStarted property to false
       room.winner = null; // No winner at the start
       room.ball = {x: 500, y: 500, x_velocity: 0, y_velocity: 0}; // Reset ball position
-
+      room.score = {
+        [TeamType.Blue]: 0,
+        [TeamType.Red]: 0,
+      }; // Reset scores
 
       return room; // Return the updated room
     }

@@ -9,5 +9,9 @@ export interface Room {
   players: Player[],
   isStarted: boolean,
   winner: TeamType | null,
+  score: {
+    [TeamType.Blue]: number;
+    [TeamType.Red]: number;
+  }
 }
 

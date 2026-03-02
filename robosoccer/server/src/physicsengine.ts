@@ -1,9 +1,12 @@
+import { TeamType } from "../../model/message-interfaces";
 import { Room } from "../../model/room";
 import { GameConfig } from "./constants";
 
 export class PhysicsEngine {
     
-    public updateRoom(room: Room) {
+public updateRoom(room: Room) {
+
+        let goalScored = false;
         // 1. Update positions based on velocities
         room.players.forEach(p => {
             p.x += p.x_velocity;
@@ -13,11 +16,18 @@ export class PhysicsEngine {
             this.handleWallCollision(p, GameConfig.PLAYER_RADIUS);
         });
 
+        // Update ball position
         room.ball.x += room.ball.x_velocity;
         room.ball.y += room.ball.y_velocity;
         room.ball.x_velocity *= GameConfig.FRICTION;
         room.ball.y_velocity *= GameConfig.FRICTION;
-        this.handleWallCollision(room.ball, GameConfig.BALL_RADIUS);
+        // Pass a flag to indicate this is the ball
+        goalScored = this.handleWallCollision(room.ball, GameConfig.BALL_RADIUS, true, room);
+
+        if (goalScored) {
+            // If a goal was scored, we can skip player collisions for this tick
+            return;
+        }
 
         // 2. Check collisions between Players and the Ball
         room.players.forEach(p => {
@@ -31,22 +41,62 @@ export class PhysicsEngine {
             }
         }
     }
+private handleWallCollision(entity: any, radius: number, isBall: boolean = false, room?: Room): boolean {
+        let goalScored = false;
 
-    private handleWallCollision(entity: any, radius: number) {
+        // Check Left Wall (Blue Team's defending side)
         if (entity.x - radius < 0) {
-            entity.x = radius;
-            entity.x_velocity *= -GameConfig.BOUNCE_RESTITUTION;
-        } else if (entity.x + radius > GameConfig.FIELD_WIDTH) {
-            entity.x = GameConfig.FIELD_WIDTH - radius;
-            entity.x_velocity *= -GameConfig.BOUNCE_RESTITUTION;
+            if (isBall && entity.y > GameConfig.GOAL_MIN_Y && entity.y < GameConfig.GOAL_MAX_Y) {
+                // Ball went into Left Goal -> Red Team scores!
+                if (room) this.scoreGoal(room, TeamType.Red);
+                return true; 
+            } else {
+                entity.x = radius;
+                entity.x_velocity *= -GameConfig.BOUNCE_RESTITUTION;
+            }
+        } 
+        // Check Right Wall (Red Team's defending side)
+        else if (entity.x + radius > GameConfig.FIELD_WIDTH) {
+            if (isBall && entity.y > GameConfig.GOAL_MIN_Y && entity.y < GameConfig.GOAL_MAX_Y) {
+                // Ball went into Right Goal -> Blue Team scores!
+                if (room) this.scoreGoal(room, TeamType.Blue);
+                return true;
+            } else {
+                entity.x = GameConfig.FIELD_WIDTH - radius;
+                entity.x_velocity *= -GameConfig.BOUNCE_RESTITUTION;
+            }
         }
 
+        // Top and Bottom walls remain the same
         if (entity.y - radius < 0) {
             entity.y = radius;
             entity.y_velocity *= -GameConfig.BOUNCE_RESTITUTION;
         } else if (entity.y + radius > GameConfig.FIELD_HEIGHT) {
             entity.y = GameConfig.FIELD_HEIGHT - radius;
             entity.y_velocity *= -GameConfig.BOUNCE_RESTITUTION;
+        }
+
+        return goalScored;
+    }
+
+    private scoreGoal(room: Room, scoringTeam: TeamType) {
+        // Increment score
+        room.score[scoringTeam] += 1;
+
+        // Check for winner
+        if (room.score[scoringTeam] >= GameConfig.WIN_SCORE) {
+            room.winner = scoringTeam;
+            room.isStarted = false; // Stop the game
+        } else {
+            // Reset positions for the next round
+            room.ball = { x: 500, y: 500, x_velocity: 0, y_velocity: 0 };
+            
+            // You can also reset player positions here
+            room.players.forEach(p => {
+                p.x_velocity = 0;
+                p.y_velocity = 0;
+                // e.g., p.x = p.team === TeamType.Blue ? 200 : 800;
+            });
         }
     }
 
