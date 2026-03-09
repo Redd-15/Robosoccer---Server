@@ -20,8 +20,11 @@ export class SocketHandler {
   constructor(httpServer: HttpServer<typeof IncomingMessage, typeof ServerResponse> | Partial<ServerOptions>, database: RobosoccerDatabase) {
     this.io = new Server(httpServer, {
       cors: {
-        origin: "http://localhost:4200",
-        methods: ["GET", "POST"]
+        origin: (requestOrigin, callback) => {
+          callback(null, requestOrigin);
+        },
+        methods: ["GET", "POST"],
+        credentials: true
       }
     });
     this.database = database;

@@ -2,7 +2,7 @@
   "name": "robosoccer-server",
   "version": "0.0.0",
   "scripts": {
-    "start:server": "cd ./robosoccer/server/src && ts-node-dev index.ts"
+    "start:server": "cd ./robosoccer/server/src && ts-node index.ts"
   },
   "private": true,
   "dependencies": {

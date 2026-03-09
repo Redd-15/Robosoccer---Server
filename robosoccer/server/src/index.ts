@@ -9,7 +9,10 @@ async function main() {
     //Create express app, use json and cors
     const app = express();
     app.use(express.json());
-    app.use(cors());
+    app.use(cors({
+      origin: true,
+      credentials: true
+    }));
 
     //Add socket handling
     const httpServer = createServer(app);
