@@ -12,7 +12,15 @@ Clients can connect to the server using a WebSocket connection.
 
 -   **URL**: The server listens on port `3000`. The default endpoint is `<server-address>:3000`.
 
-When a client successfully connects, the server will send a `ConnectAck` message. If the client is reconnecting (identified by a `playerId` cookie), the server will send a `ReconnectAck` message.
+### Important Frontend Connection Note
+The server is configured to handle credentials for session management. When initializing the Socket.IO client, you **must** enable the `withCredentials` flag:
+
+```typescript
+// Example Angular/TypeScript initialization
+this.socket = io('http://<server-address>:3000', { withCredentials: true, transports: ['polling', 'websocket'] });
+```
+
+When a client successfully connects, the server will send a `ConnectAck` message.
 
 ## 3. Communication Protocol
 
@@ -51,7 +59,7 @@ These are the messages that the server can send to the client.
 -   **Type**: `receiveRoom`
 -   **Payload**: `Room`
 -   **Description**: Sent to all clients in a room whenever the room's state changes. This includes player joining/leaving, team changes, game start/end, and game state updates during gameplay. To receive these updates, clients must subscribe to a socket event with the name equal to their `roomId`.
-
+**Note**: While the server uses Socket.IO rooms internally to partition traffic, the event name you should listen for is always `receiveRoom`.
 ### `GameOver`
 
 -   **Type**: `gameOver`
@@ -128,6 +136,18 @@ These are the messages that the client can send to the server.
 -   **Payload**: `MovementMessage`
 -   **Description**: Sent by the client to update their player's movement direction. The payload contains `x` and `y` values representing the direction of movement. Movements may only be sent at 60 FPS, sending it faster may lead to omitting frames.
 
+## 6. Useful Notes for Frontend Developers
+
+1.  **Event Constants**: It is highly recommended to use the `ServerMessageType` and `ClientMessageType` enums provided in the shared model to avoid typos in event strings.
+2.  **Coordinate System**: The field dimensions are defined in `GameConfig`. Ensure your rendering engine scales these units correctly to your canvas size.
+3.  **Team Logic**: 
+    - The **Left** goal belongs to the **Red** team (scoring here gives a point to Blue).
+    - The **Right** goal belongs to the **Blue** team (scoring here gives a point to Red).
+4.  **Spectator Mode**: Users who join as or switch to the `spectator` team will receive all `receiveRoom` updates but their `movementMessage` emissions will be ignored by the server physics engine.
+5.  **Throttling**: The server processes physics at a fixed tick rate (defined by `TICK_RATE`). Sending movement updates faster than 60fps is unnecessary and may be ignored.
+6.  **Error Handling**: Always implement a listener for the `error` event. The server sends descriptive messages for common failures like `room-not-found` or `room-already-started`.
+
+
 
 ## 6. Data Models
 
@@ -145,6 +165,7 @@ interface Room {
   score: {
     [TeamType.Blue]: number;
     [TeamType.Red]: number;
+    [TeamType.Spectator]: number;
   };
   countdownTicks: number; 
 }
