@@ -61,15 +61,7 @@ export class SocketHandler {
     this.handlers = new ServerHandlers(this.io, this.database, this.physicsEngine);
 
     this.io.on("connection", (socket) => {
-      const cookies = socket.handshake.headers.cookie;
-      const parsedCookies = this.parseCookies(cookies);
-      console.log("Parsed Cookies:", parsedCookies);
-
-      const isRejoin = this.handlers?.cookieHandler(socket, parsedCookies); // Call the cookie handler to check if player was in room already
-
-      //Send ACK to client by socket id
-      if(isRejoin) this.io.to(socket.id).emit(ServerMessageType.ReconnectAck);
-      else  this.io.to(socket.id).emit(ServerMessageType.ConnectAck);
+      this.io.to(socket.id).emit(ServerMessageType.ConnectAck);
 
       //Configure listeners for different message types and disconnection on socket
       socket.on(ClientMessageType.TestMessage, (content) => this.handlers?.clientTestMessageHandler(socket, content));
@@ -95,9 +87,5 @@ export class SocketHandler {
     return handler;
   }
 
-  /** Parse cookies string into an object with name:value pairs. Returns empty object if cookies is undefined. */
-  private parseCookies(cookies: string | undefined){
-    return Object.fromEntries(cookies?.split("; ").map((c) => c.split("=")) || []);
-  }
 }
 

@@ -28,64 +28,6 @@ export class ServerHandlers {
         console.log(`Client ${socket.id} sent: ${content}`);
     }
 
-    public cookieHandler(socket: Socket, cookie: any) {
-
-        if (cookie == undefined || !cookie.playerId) { // If no cookie is found, return
-            return;
-        }
-        // Handle cookies here if needed
-        console.log(`Client ${socket.id} has joined with existing player ID: ${cookie.playerId}`);
-        let room = this.database.updateSocketIdInPlayerRoom(Number.parseInt(cookie.playerId), socket.id); // Find the player by ID in the database
-        // Get the player ID from the database
-
-        if (room) { // If the player is found in a room, join the room
-            console.log(`Found room for client (${socket.id}): ${room.roomId}`);
-            const currentPlayerId = this.database.getPlayerIdBySocketId(socket.id);
-            room = this.database.setPlayerActive(socket.id); // Set the player as active in the database
-
-            if (!room) { // If player cannot be set active
-                console.log(`Client ${socket.id} cannot be set Active`);
-
-                const error: ErrorMessage = {
-                    errorType: ErrorType.SettingUnavailable, // Error type for other errors
-                    message: `Player with ID (${cookie.playerId}) cannot be set Active.` // Error message for room not found
-                };
-
-                this.io.to(socket.id).emit(ServerMessageType.Error, error); // Send an error message back to the client
-                return;
-            }
-
-            const idmessage: IdMessage = {
-                playerId: currentPlayerId, // Player ID from room ids
-                roomId: room.roomId, // Room ID from the created room
-            };
-
-            this.io.to(socket.id).emit(ServerMessageType.ReceiveId, idmessage); // Send the socket ID back to the client
-            this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room); // Send a message back to the client
-            this.io.to(socket.id).emit(ServerMessageType.ReceiveConfig, {
-            fieldWidth: GameConfig.FIELD_WIDTH,
-            fieldHeight: GameConfig.FIELD_HEIGHT,
-            playerRadius: GameConfig.PLAYER_RADIUS,
-            ballRadius: GameConfig.BALL_RADIUS,
-            goalMinY: GameConfig.GOAL_MIN_Y,
-            goalMaxY: GameConfig.GOAL_MAX_Y,
-            winScore: GameConfig.WIN_SCORE
-            });
-            socket.join(room.roomId.toString()); // Join the room in the socket
-            console.log(`Client ${socket.id} joined back to room (${room.roomId})`);
-
-            return true;
-        } else {
-            console.log(`Client ${socket.id} does not have an existing room`);
-
-            const error: ErrorMessage = {
-                errorType: ErrorType.RoomNoLongerExists, // Error type for other errors
-                message: `Room with ID (${cookie.playerId}) no longer exists.` // Error message for room not found
-            };
-            this.io.to(socket.id).emit(ServerMessageType.Error, error); // Send an error message back to the client
-            return;
-        }
-    }
 
     public createRoomHandler(socket: Socket, username: string) {
 

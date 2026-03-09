@@ -14,7 +14,6 @@ export enum ServerMessageType {
   ReceiveRoom = 'receiveRoom',
   GameOver = 'gameOver',
   Error = 'error',
-  ReconnectAck = 'reconnectAck',
   ReceiveConfig = 'receive-config'
 }
 
