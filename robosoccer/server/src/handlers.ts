@@ -269,18 +269,4 @@ export class ServerHandlers {
         return;
     }
 
-    private getTeamChatId(roomId: number, playerTeam: TeamType) {
-        return `${roomId}-${playerTeam}`; // Return the team chat ID
-    }
-
-    private getPlayerTeamById(playerId: number) {
-        const player = this.database.getPlayerById(playerId); // Get the player by ID
-        if (player) {
-            return player.team; // Return the team of the player
-        } else {
-            console.log(`Player with ID ${playerId} not found.`);
-            return null; // Return null if the player is not found
-        }
-    }
-
 }
