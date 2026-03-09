@@ -18,7 +18,12 @@ export class SocketHandler {
   private physicsEngine: PhysicsEngine; 
 
   constructor(httpServer: HttpServer<typeof IncomingMessage, typeof ServerResponse> | Partial<ServerOptions>, database: RobosoccerDatabase) {
-    this.io = new Server(httpServer);
+    this.io = new Server(httpServer, {
+      cors: {
+        origin: "http://localhost:4200",
+        methods: ["GET", "POST"]
+      }
+    });
     this.database = database;
     this.handlers = null; 
     
