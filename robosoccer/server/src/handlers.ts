@@ -49,7 +49,8 @@ export class ServerHandlers {
                 ballRadius: GameConfig.BALL_RADIUS,
                 goalMinY: GameConfig.GOAL_MIN_Y,
                 goalMaxY: GameConfig.GOAL_MAX_Y,
-                winScore: GameConfig.WIN_SCORE
+                winScore: GameConfig.WIN_SCORE,
+                countdown: GameConfig.COUNTDOWN_SEC
             });
             socket.join(room.roomId.toString()); // Join the room in the socket
             console.log(`Client ${socket.id} tried to create new room while having an already existing one (${room.roomId})`);
@@ -76,7 +77,8 @@ export class ServerHandlers {
             ballRadius: GameConfig.BALL_RADIUS,
             goalMinY: GameConfig.GOAL_MIN_Y,
             goalMaxY: GameConfig.GOAL_MAX_Y,
-            winScore: GameConfig.WIN_SCORE
+            winScore: GameConfig.WIN_SCORE,
+            countdown: GameConfig.COUNTDOWN_SEC
         });
         socket.join(room.roomId.toString()); // Join the room in the socket
         console.log(`Client (SID: ${socket.id}) created room (ID: ${room.roomId}) with username: ${username}`);
@@ -104,18 +106,20 @@ export class ServerHandlers {
                 playerId: this.database.getPlayerIdBySocketId(socket.id), // Player ID from room ids
                 roomId: existingRoom.roomId, // Room ID from the created room
             };
-
+            
+            this.io.to(socket.id).emit(ServerMessageType.ReceiveConfig, {
+                fieldWidth: GameConfig.FIELD_WIDTH,
+                fieldHeight: GameConfig.FIELD_HEIGHT,
+                playerRadius: GameConfig.PLAYER_RADIUS,
+                ballRadius: GameConfig.BALL_RADIUS,
+                goalMinY: GameConfig.GOAL_MIN_Y,
+                goalMaxY: GameConfig.GOAL_MAX_Y,
+                winScore: GameConfig.WIN_SCORE,
+                countdown: GameConfig.COUNTDOWN_SEC
+            });
             this.io.to(socket.id).emit(ServerMessageType.ReceiveId, idmessage); // Send the socket ID back to the client
             this.io.to(socket.id).emit(ServerMessageType.ReceiveRoom, existingRoom); // Send a message back to the client
-            this.io.to(socket.id).emit(ServerMessageType.ReceiveConfig, {
-            fieldWidth: GameConfig.FIELD_WIDTH,
-            fieldHeight: GameConfig.FIELD_HEIGHT,
-            playerRadius: GameConfig.PLAYER_RADIUS,
-            ballRadius: GameConfig.BALL_RADIUS,
-            goalMinY: GameConfig.GOAL_MIN_Y,
-            goalMaxY: GameConfig.GOAL_MAX_Y,
-            winScore: GameConfig.WIN_SCORE
-            });
+
             socket.join(existingRoom.roomId.toString()); // Join the room in the socket
 
             console.log(`Client ${socket.id} tried to create new room while having an already existing one (${existingRoom.roomId})`);
@@ -151,6 +155,16 @@ export class ServerHandlers {
             roomId: room.roomId,
         };
         this.io.to(socket.id).emit(ServerMessageType.ReceiveId, idmessage);
+        this.io.to(socket.id).emit(ServerMessageType.ReceiveConfig, {
+            fieldWidth: GameConfig.FIELD_WIDTH,
+            fieldHeight: GameConfig.FIELD_HEIGHT,
+            playerRadius: GameConfig.PLAYER_RADIUS,
+            ballRadius: GameConfig.BALL_RADIUS,
+            goalMinY: GameConfig.GOAL_MIN_Y,
+            goalMaxY: GameConfig.GOAL_MAX_Y,
+            winScore: GameConfig.WIN_SCORE,
+            countdown: GameConfig.COUNTDOWN_SEC
+        });
         socket.join(room.roomId.toString()); 
         this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room);
 
