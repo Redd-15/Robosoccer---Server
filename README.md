@@ -1,7 +1,7 @@
 # Robosoccer---Server
 
 ## Overview
-Software developmemnt project creatad as part of the Computer Science Engineering MSc program at the University of Miskolc. Robosoccer is an AI based game, using socket communication. This repository contains the server side implementation for the game.
+Software development project created as part of the Computer Science Engineering MSc program at the University of Miskolc. Robosoccer is an AI based air hockey like game, using real-time socket communication. This repository contains the server side implementation for the game.
 
 ## Team Members
 - **Réka Nyeste** 
