@@ -108,7 +108,7 @@ These are the messages that the client can send to the server.
 
 -   **Type**: `pickTeam`
 -   **Payload**: `TeamPickerMessage`
--   **Description**: Allows a player to select a team (`red` or `blue`).
+-   **Description**: Allows a player to select a team (`red` or `blue` or 'spectator').
 
 ### `StartGame`
 
@@ -265,7 +265,6 @@ enum ClientMessageType {
   LeaveRoom = 'leaveRoom',
   GetId = 'getId',
   PickTeam = 'pickTeam',
-  PickPosition = 'pickPosition',
   StartGame = 'startGame',
   RestartGame = 'restartGame',
   MovementMessage = 'movementMessage'
