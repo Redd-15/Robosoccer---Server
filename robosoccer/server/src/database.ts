@@ -2,6 +2,7 @@ import { Room } from "../../model/room"
 import { Player } from "../../model/player"
 import { TeamType } from "../../model/message-interfaces";
 import { GameConfig } from "./constants";
+import { get } from "http";
 
 export class RobosoccerDatabase {
   // This class will handle the database connection and queries
@@ -82,9 +83,11 @@ export class RobosoccerDatabase {
   public startGame(socketId: string): Room | null {
     // Find the room by ID
     const room = this.getRoomBySocketId(socketId); // Get the room ID from the socket ID
-    if (room) {
-      room.isStarted = true; // Set the room's isStarted property to true
-      room.countdownTicks = GameConfig.COUNTDOWN_SEC * GameConfig.FPS; // Initialize countdown ticks
+    if (room){
+      if(this.getTeamNumberInRoom(room, TeamType.Red) + this.getTeamNumberInRoom(room, TeamType.Blue) >= GameConfig.MINIMUM_PLAYERS_TO_START) {
+        room.isStarted = true; // Set the room's isStarted property to true
+        room.countdownTicks = GameConfig.COUNTDOWN_SEC * GameConfig.FPS; // Initialize countdown ticks
+      }
 
       return room; // Return the updated room
     }

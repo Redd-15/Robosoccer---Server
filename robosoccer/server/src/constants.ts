@@ -13,4 +13,5 @@ export const GameConfig = {
     GOAL_MAX_Y: 600,
     WIN_SCORE: 3, // Play until 3 goals
     COUNTDOWN_SEC: 3, // Countdown in ticks (e.g., 5 seconds at 60 FPS = 300 ticks)
+    MINIMUM_PLAYERS_TO_START: 1, // Minimum players required to start the game
 };
