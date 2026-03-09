@@ -10,7 +10,7 @@ The server is built with Node.js, Express, and `socket.io`.
 
 Clients can connect to the server using a WebSocket connection.
 
--   **URL**: The server listens on port `3000`. The default endpoint is `ws://<server-address>:3000`.
+-   **URL**: The server listens on port `3000`. The default endpoint is `<server-address>:3000`.
 
 When a client successfully connects, the server will send a `ConnectAck` message. If the client is reconnecting (identified by a `playerId` cookie), the server will send a `ReconnectAck` message.
 
@@ -50,7 +50,7 @@ These are the messages that the server can send to the client.
 
 -   **Type**: `receiveRoom`
 -   **Payload**: `Room`
--   **Description**: Sent to all clients in a room whenever the room's state changes. This includes player joining/leaving, team changes, game start/end, and game state updates during gameplay.
+-   **Description**: Sent to all clients in a room whenever the room's state changes. This includes player joining/leaving, team changes, game start/end, and game state updates during gameplay. To receive these updates, clients must subscribe to a socket event with the name equal to their `roomId`.
 
 ### `GameOver`
 
@@ -68,7 +68,7 @@ These are the messages that the server can send to the client.
 
 -   **Type**: `receive-config`
 -   **Payload**: `GameConfigMessage`
--   -**Description**: Sent to a client after they join a room. It contains the configuration of the game, such as field dimensions, player and ball radius, etc.
+-   -**Description**: Sent to a client after they join a room. It contains the configuration of the game, such as field dimensions, player and ball radius, etc. Keep in mind that the LEFT goal is point for red and right goal is point for blue, so left is the red gate, right is the blue gate!
 
 ## 5. Client to Server Messages
 
@@ -126,7 +126,8 @@ These are the messages that the client can send to the server.
 
 -   **Type**: `movementMessage`
 -   **Payload**: `MovementMessage`
--   **Description**: Sent by the client to update their player's movement direction. The payload contains `x` and `y` values representing the direction of movement.
+-   **Description**: Sent by the client to update their player's movement direction. The payload contains `x` and `y` values representing the direction of movement. Movements may only be sent at 60 FPS, sending it faster may lead to omitting frames.
+
 
 ## 6. Data Models
 

@@ -58,7 +58,7 @@ export class SocketHandler {
   
   private setUp() {
     //Configure listener for socket connection
-    this.handlers = new ServerHandlers(this.io, this.database);
+    this.handlers = new ServerHandlers(this.io, this.database, this.physicsEngine);
 
     this.io.on("connection", (socket) => {
       const cookies = socket.handshake.headers.cookie;

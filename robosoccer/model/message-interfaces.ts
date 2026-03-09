@@ -47,7 +47,6 @@ export interface ErrorMessage {
   message: string
 }
 
-// Add this to message-interfaces.ts
 export interface GameConfigMessage {
     fieldWidth: number;
     fieldHeight: number;

@@ -7,16 +7,21 @@ import { ErrorMessage, ErrorType, IdMessage, TeamType } from "../../model/messag
 import { GameConfig } from "./constants";
 
 
+import { PhysicsEngine } from "./physicsengine";
+
+
 // Import necessary types from the model
 export class ServerHandlers {
     // This class will handle the socket events
 
     private io: Server; // Socket.IO instance
     private database: RobosoccerDatabase; // Database instance
+    private physicsEngine: PhysicsEngine;
 
-    constructor(io: Server, database: RobosoccerDatabase) {
+    constructor(io: Server, database: RobosoccerDatabase, physicsEngine: PhysicsEngine) {
         this.io = io; // Assign the Socket.IO instance
         this.database = database
+        this.physicsEngine = physicsEngine;
     }
 
     public clientTestMessageHandler(socket: Socket, content: any) {
@@ -223,6 +228,7 @@ export class ServerHandlers {
         const room = this.database.startGame(socket.id); // Start the game in the database
 
         if (room) {
+            this.physicsEngine.resetPlayerPositions(room);
             this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room); // Send a message back to the client
             console.log(`Client ${socket.id} started game in room with ID: ${room.roomId}`);
 
@@ -271,6 +277,7 @@ export class ServerHandlers {
         console.log(`Client ${socket.id} requested to restart game`);
         const room = this.database.restartGame(socket.id); // Restart the game in the database
         if (room) {
+            this.physicsEngine.resetPlayerPositions(room);
             this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room); // Send a message back to the client
             console.log(`Client ${socket.id} restarted game in room with ID: ${room.roomId}`);
         }

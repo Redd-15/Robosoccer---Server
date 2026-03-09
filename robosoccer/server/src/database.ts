@@ -37,7 +37,7 @@ export class RobosoccerDatabase {
       players: [this.createPlayer(username, roomId*10000 + 0, socketId)],
       isStarted: false,
       winner: null, // No winner at the start
-      ball: {x: 500, y: 500, x_velocity: 0, y_velocity: 0}, // Initial position of the ball
+      ball: {x: GameConfig.FIELD_WIDTH/2, y: GameConfig.FIELD_HEIGHT/2, x_velocity: 0, y_velocity: 0}, // Initial position of the ball
       score: {
         [TeamType.Blue]: 0,
         [TeamType.Red]: 0,
@@ -150,8 +150,10 @@ export class RobosoccerDatabase {
       // Find the player by socket ID in the room
       const player = room.players.find(player => player.socketId === socketId);
       if (player && room.countdownTicks === 0) { // Only allow movement if the player exists and countdown is not active
-        player.x_velocity += x; // Update the player's x position
-        player.y_velocity += y; // Update the player's y position
+        const constrainedX = Math.max(-GameConfig.MAX_ACCELERATION, Math.min(GameConfig.MAX_ACCELERATION, x));
+        const constrainedY = Math.max(-GameConfig.MAX_ACCELERATION, Math.min(GameConfig.MAX_ACCELERATION, y));
+        player.x_velocity += constrainedX; // Update the player's x velocity
+        player.y_velocity += constrainedY; // Update the player's y velocity
       }
       return room; // Return the room
     }
@@ -180,7 +182,7 @@ export class RobosoccerDatabase {
     if (room) {
       room.isStarted = false; // Set the room's isStarted property to false
       room.winner = null; // No winner at the start
-      room.ball = {x: 500, y: 500, x_velocity: 0, y_velocity: 0}; // Reset ball position
+      room.ball = {x: GameConfig.FIELD_WIDTH/2, y: GameConfig.FIELD_HEIGHT/2, x_velocity: 0, y_velocity: 0}; // Reset ball position
       room.score = {
         [TeamType.Blue]: 0,
         [TeamType.Red]: 0,

@@ -3,6 +3,28 @@ import { Room } from "../../model/room";
 import { GameConfig } from "./constants";
 
 export class PhysicsEngine {
+
+    public resetPlayerPositions(room: Room) {
+        const bluePlayers = room.players.filter(p => p.team === TeamType.Blue);
+        const redPlayers = room.players.filter(p => p.team === TeamType.Red);
+
+        const blueTeamX = GameConfig.FIELD_WIDTH / 4;
+        const redTeamX = GameConfig.FIELD_WIDTH * 3 / 4;
+
+        bluePlayers.forEach((player, index) => {
+            player.x = blueTeamX;
+            player.y = (GameConfig.FIELD_HEIGHT / (bluePlayers.length + 1)) * (index + 1);
+            player.x_velocity = 0;
+            player.y_velocity = 0;
+        });
+
+        redPlayers.forEach((player, index) => {
+            player.x = redTeamX;
+            player.y = (GameConfig.FIELD_HEIGHT / (redPlayers.length + 1)) * (index + 1);
+            player.x_velocity = 0;
+            player.y_velocity = 0;
+        });
+    }
     
 public updateRoom(room: Room) {
 
@@ -16,6 +38,8 @@ public updateRoom(room: Room) {
 
         //Update positions based on velocities
         room.players.forEach(p => {
+            p.x_velocity = Math.max(-GameConfig.MAX_SPEED, Math.min(GameConfig.MAX_SPEED, p.x_velocity));
+            p.y_velocity = Math.max(-GameConfig.MAX_SPEED, Math.min(GameConfig.MAX_SPEED, p.y_velocity));
 
             p.x += p.x_velocity;
             p.y += p.y_velocity;
@@ -25,6 +49,8 @@ public updateRoom(room: Room) {
         });
 
         // Update ball position
+        room.ball.x_velocity = Math.max(-GameConfig.MAX_SPEED, Math.min(GameConfig.MAX_SPEED, room.ball.x_velocity));
+        room.ball.y_velocity = Math.max(-GameConfig.MAX_SPEED, Math.min(GameConfig.MAX_SPEED, room.ball.y_velocity));
         room.ball.x += room.ball.x_velocity;
         room.ball.y += room.ball.y_velocity;
         room.ball.x_velocity *= GameConfig.FRICTION;
@@ -92,14 +118,9 @@ private handleWallCollision(entity: any, radius: number, isBall: boolean = false
             room.isStarted = false; // Stop the game
         } else {
             // Reset positions for the next round
-            room.ball = { x: 500, y: 500, x_velocity: 0, y_velocity: 0 };
+            room.ball = { x: GameConfig.FIELD_WIDTH/2, y: GameConfig.FIELD_HEIGHT/2, x_velocity: 0, y_velocity: 0 };
             
-            // You can also reset player positions here
-            room.players.forEach(p => {
-                p.x_velocity = 0;
-                p.y_velocity = 0;
-                // e.g., p.x = p.team === TeamType.Blue ? 200 : 800;
-            });
+            this.resetPlayerPositions(room);
 
             room.countdownTicks = GameConfig.COUNTDOWN_SEC * GameConfig.FPS; // Start countdown for next round
         }
