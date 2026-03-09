@@ -278,6 +278,7 @@ enum ClientMessageType {
 enum TeamType {
   Red = 'red',
   Blue = 'blue',
+  Spectator = 'spectator'
 }
 ```
 

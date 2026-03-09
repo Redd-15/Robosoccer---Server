@@ -1,6 +1,3 @@
-import { Ball } from "./ball"
-import { Player } from "./player"
-
 /** Types of errors forwarded via socket */
 export enum ErrorType {
   Other = 'other',
@@ -15,6 +12,7 @@ export enum ErrorType {
 export enum TeamType {
   Red = 'red',
   Blue = 'blue',
+  Spectator = 'spectator'
 }
 
 /** Message type for joining a room  */

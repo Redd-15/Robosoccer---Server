@@ -11,6 +11,7 @@ export interface Room {
   score: {
     [TeamType.Blue]: number;
     [TeamType.Red]: number;
+    [TeamType.Spectator]: number;
   },
   countdownTicks: number; 
 }

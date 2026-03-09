@@ -41,6 +41,7 @@ export class RobosoccerDatabase {
       score: {
         [TeamType.Blue]: 0,
         [TeamType.Red]: 0,
+        [TeamType.Spectator]: 0,
       },
       countdownTicks: GameConfig.COUNTDOWN_SEC * GameConfig.FPS // Initialize countdown ticks
     };
@@ -55,11 +56,16 @@ export class RobosoccerDatabase {
     // Find the room by ID
     const playerId = this.generateUniquePlayerId(room);
     const player = this.createPlayer(username, playerId, socketId); // Create a new player
+    
+    if (this.getTeamNumberInRoom(room, TeamType.Red) <= this.getTeamNumberInRoom(room, TeamType.Blue)) {
+      player.team = TeamType.Red; // Assign to Red team if it has less or equal players than Blue
+    } 
+
     room.players.push(player); // Add the player to the room
     return room; // Return the updated room
   }
 
-  public pickTeam(socketId: string, team: TeamType, spymaster: boolean): Room | null {
+  public pickTeam(socketId: string, team: TeamType): Room | null {
     // Find the room by socket ID
     const room = this.getRoomBySocketId(socketId); // Get the room ID from the socket ID
     if (room) {
@@ -140,7 +146,7 @@ export class RobosoccerDatabase {
     if (room) {
       // Find the player by socket ID in the room
       const player = room.players.find(player => player.socketId === socketId);
-      if (player && room.countdownTicks === 0) { // Only allow movement if the player exists and countdown is not active
+      if (player && room.countdownTicks === 0 && player.team !== TeamType.Spectator) { // Only allow movement if the player exists (and is not a spectator) and countdown is not active
         const constrainedX = Math.max(-GameConfig.MAX_ACCELERATION, Math.min(GameConfig.MAX_ACCELERATION, x));
         const constrainedY = Math.max(-GameConfig.MAX_ACCELERATION, Math.min(GameConfig.MAX_ACCELERATION, y));
         player.x_velocity += constrainedX; // Update the player's x velocity
@@ -177,6 +183,7 @@ export class RobosoccerDatabase {
       room.score = {
         [TeamType.Blue]: 0,
         [TeamType.Red]: 0,
+        [TeamType.Spectator]: 0,
       }; // Reset scores
       room.countdownTicks = GameConfig.COUNTDOWN_SEC * GameConfig.FPS; // Reset countdown ticks
 
@@ -282,6 +289,12 @@ export class RobosoccerDatabase {
   private getRoomIdBySocketIdFromPlayerId(playerId: number): number {
 
     return Math.floor(playerId / 10000); // Get the room ID from the player ID
+
+  }
+
+  private getTeamNumberInRoom(room: Room, team: TeamType): number {
+
+    return room.players.filter(player => player.team === team).length; // Get the number of players in the specified team in the room
 
   }
 }

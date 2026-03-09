@@ -157,13 +157,13 @@ export class ServerHandlers {
         console.log(`Client ${socket.id} joined room with username: ${username}`);
     }
 
-    public pickTeamHandler(socket: Socket, team: TeamType, spymaster: boolean) {
-        console.log(`Client ${socket.id} requested to pick team: ${team} and spymaster: ${spymaster}`);
-        const room = this.database.pickTeam(socket.id, team, spymaster); // Pick a team in the database
+    public pickTeamHandler(socket: Socket, team: TeamType) {
+        console.log(`Client ${socket.id} requested to pick team: ${team}`);
+        const room = this.database.pickTeam(socket.id, team); // Pick a team in the database
 
         if (room) {
             this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room); // Send a message back to the client
-            console.log(`Client switched to team ${team} and spymaster: ${spymaster}`);
+            console.log(`Client switched to team ${team}`);
 
         } else {
             this.roomNotFoundError(socket); // If the room does not exist, send an error message

@@ -69,7 +69,7 @@ export class SocketHandler {
       socket.on(ClientMessageType.JoinRoom, (join) => this.handlers?.joinRoomHandler(socket, join.username, join.roomId));
       socket.on(ClientMessageType.LeaveRoom, (content) => this.handlers?.leaveRoomHandler(socket));
       socket.on(ClientMessageType.GetId, (content) => this.handlers?.getIdHandler(socket));
-      socket.on(ClientMessageType.PickPosition, (content) => this.handlers?.pickTeamHandler(socket, content.team, content.spymaster));
+      socket.on(ClientMessageType.PickPosition, (content) => this.handlers?.pickTeamHandler(socket, content.team));
       socket.on(ClientMessageType.StartGame, (content) => this.handlers?.startGameHandler(socket));
       socket.on(ClientMessageType.RestartGame, (content) => this.handlers?.restartGameHandler(socket));
       socket.on(ClientMessageType.MovementMessage, (content) => this.handlers?.movementMessageHandler(socket, content.x, content.y));

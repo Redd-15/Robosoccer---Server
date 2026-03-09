@@ -38,6 +38,8 @@ public updateRoom(room: Room) {
 
         //Update positions based on velocities
         room.players.forEach(p => {
+
+            if (p.team != TeamType.Spectator) {
             p.x_velocity = Math.max(-GameConfig.MAX_SPEED, Math.min(GameConfig.MAX_SPEED, p.x_velocity));
             p.y_velocity = Math.max(-GameConfig.MAX_SPEED, Math.min(GameConfig.MAX_SPEED, p.y_velocity));
 
@@ -46,6 +48,7 @@ public updateRoom(room: Room) {
             p.x_velocity *= GameConfig.FRICTION; // Apply friction
             p.y_velocity *= GameConfig.FRICTION;
             this.handleWallCollision(p, GameConfig.PLAYER_RADIUS);
+            }
         });
 
         // Update ball position
@@ -110,6 +113,8 @@ private handleWallCollision(entity: any, radius: number, isBall: boolean = false
 
     private scoreGoal(room: Room, scoringTeam: TeamType) {
         // Increment score
+
+
         room.score[scoringTeam] += 1;
 
         // Check for winner
