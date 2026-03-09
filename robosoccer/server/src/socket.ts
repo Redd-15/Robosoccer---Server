@@ -50,6 +50,12 @@ export class SocketHandler {
         // 3. Send the updated room back to the clients
         this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room);
 
+        // 4. If the game ended during the update, notify the clients
+        if (room.winner !== null) {
+          this.io.to(room.roomId.toString()).emit(ServerMessageType.GameOver, room.winner);
+          room.isStarted = false; // Stop the game loop for this room until it's restarted
+        } 
+
       });
 
     }, GameConfig.TICK_RATE);
@@ -88,4 +94,3 @@ export class SocketHandler {
   }
 
 }
-

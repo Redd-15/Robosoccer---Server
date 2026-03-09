@@ -63,6 +63,14 @@ public updateRoom(room: Room) {
 
         if (goalScored) {
             // If a goal was scored, we can skip player collisions for this tick
+            if (room.score[TeamType.Red] >= GameConfig.WIN_SCORE) {
+                room.winner = TeamType.Red;  
+
+            } else if (room.score[TeamType.Blue] >= GameConfig.WIN_SCORE) {
+                room.winner = TeamType.Blue;
+
+            }
+            
             return;
         }
 
@@ -71,6 +79,8 @@ public updateRoom(room: Room) {
             this.handleCircleCollision(p, room.ball, GameConfig.PLAYER_RADIUS, GameConfig.BALL_RADIUS);
         });
     }
+
+    return;
 }
 
 private handleWallCollision(entity: any, radius: number, isBall: boolean = false, room?: Room): boolean {
@@ -113,22 +123,15 @@ private handleWallCollision(entity: any, radius: number, isBall: boolean = false
 
     private scoreGoal(room: Room, scoringTeam: TeamType) {
         // Increment score
-
-
         room.score[scoringTeam] += 1;
+    
+        // Reset positions for the next round
+        room.ball = { x: GameConfig.FIELD_WIDTH/2, y: GameConfig.FIELD_HEIGHT/2, x_velocity: 0, y_velocity: 0 };
+        
+        this.resetPlayerPositions(room);
 
-        // Check for winner
-        if (room.score[scoringTeam] >= GameConfig.WIN_SCORE) {
-            room.winner = scoringTeam;
-            room.isStarted = false; // Stop the game
-        } else {
-            // Reset positions for the next round
-            room.ball = { x: GameConfig.FIELD_WIDTH/2, y: GameConfig.FIELD_HEIGHT/2, x_velocity: 0, y_velocity: 0 };
-            
-            this.resetPlayerPositions(room);
-
-            room.countdownTicks = GameConfig.COUNTDOWN_SEC * GameConfig.FPS; // Start countdown for next round
-        }
+        room.countdownTicks = GameConfig.COUNTDOWN_SEC * GameConfig.FPS; // Start countdown for next round
+    
     }
 
     private handleCircleCollision(c1: any, c2: any, r1: number, r2: number) {

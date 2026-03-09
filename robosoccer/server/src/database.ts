@@ -162,13 +162,9 @@ export class RobosoccerDatabase {
     // Find the room by socket ID
     const room = this.getRoomBySocketId(socketId); // Get the room ID from the socket ID
     if (room) {
-
-        //TODO: Implement game over logic based on the guess and the current state of the room
-
-
+      room.isStarted = false; // Set the room's isStarted property to false
       console.log("Game Over for Room ID: " + room.roomId + " Winner: " + room.winner);
-      return null;
-
+      return room;
     }
     return null; // Placeholder for game over logic
   }
