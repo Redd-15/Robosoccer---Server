@@ -51,21 +51,12 @@ export class RobosoccerDatabase {
     return newRoom; // Return the new room
   }
 
-  public joinRoom(username: string, socketId: string, roomId: number,): Room | null {
+  public joinRoom(username: string, socketId: string, room: Room): Room {
     // Find the room by ID
-    const room = this.roomdb.find(room => room.roomId == roomId);
-    if (room == undefined) { // If the room exists, create a new player and add them to the room
-        return null; // Return null if the room does not exist
-    }
-    else if (!room.isStarted) { // If the room is already started, return null
-        const playerId = this.generateUniquePlayerId(room);
-        const player = this.createPlayer(username, playerId, socketId); // Create a new player
-        room.players.push(player); // Add the player to the room
-        return room; // Return the updated room
-        }
-    else {
-        return null; // Return null if the room does not exist
-    }
+    const playerId = this.generateUniquePlayerId(room);
+    const player = this.createPlayer(username, playerId, socketId); // Create a new player
+    room.players.push(player); // Add the player to the room
+    return room; // Return the updated room
   }
 
   public pickTeam(socketId: string, team: TeamType, spymaster: boolean): Room | null {
@@ -192,6 +183,11 @@ export class RobosoccerDatabase {
       return room; // Return the updated room
     }
     return null; // Return null if the room does not exist
+  }
+
+  public getRoomByRoomId(roomId: number): Room | null {
+    const room = this.roomdb.find(room => room.roomId == roomId);
+    return room ? room : null;
   }
 
   public getRoomIdBySocketId(socketId: string): number | null {

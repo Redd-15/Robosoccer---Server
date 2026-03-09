@@ -86,15 +86,15 @@ export class ServerHandlers {
 
         console.log(`Player ${username} requested to join room with ID: ${roomId}`);
 
-        let room = this.database.getRoomBySocketId(socket.id)
-        if (room) {
+        let existingRoom = this.database.getRoomBySocketId(socket.id)
+        if (existingRoom) {
 
-            if (room.isStarted) {
-                console.log(`Room with ID (${room.roomId}) has already started.`);
+            if (existingRoom.isStarted) {
+                console.log(`Room with ID (${existingRoom.roomId}) has already started.`);
 
                 const error: ErrorMessage = {
                     errorType: ErrorType.RoomAlreadyStarted, // Error type for other errors
-                    message: `Room with ID (${room.roomId}) has already started.` // Error message for room not found
+                    message: `Room with ID (${existingRoom.roomId}) has already started.` // Error message for room not found
                 };
                 this.io.to(socket.id).emit(ServerMessageType.Error, error); // Send an error message back to the client
                 return;
@@ -102,11 +102,11 @@ export class ServerHandlers {
 
             const idmessage: IdMessage = {
                 playerId: this.database.getPlayerIdBySocketId(socket.id), // Player ID from room ids
-                roomId: room.roomId, // Room ID from the created room
+                roomId: existingRoom.roomId, // Room ID from the created room
             };
 
             this.io.to(socket.id).emit(ServerMessageType.ReceiveId, idmessage); // Send the socket ID back to the client
-            this.io.to(socket.id).emit(ServerMessageType.ReceiveRoom, room); // Send a message back to the client
+            this.io.to(socket.id).emit(ServerMessageType.ReceiveRoom, existingRoom); // Send a message back to the client
             this.io.to(socket.id).emit(ServerMessageType.ReceiveConfig, {
             fieldWidth: GameConfig.FIELD_WIDTH,
             fieldHeight: GameConfig.FIELD_HEIGHT,
@@ -116,11 +116,9 @@ export class ServerHandlers {
             goalMaxY: GameConfig.GOAL_MAX_Y,
             winScore: GameConfig.WIN_SCORE
             });
-            socket.join(room.roomId.toString()); // Join the room in the socket
+            socket.join(existingRoom.roomId.toString()); // Join the room in the socket
 
-            console.log(`Client ${socket.id} tried to create new room while having an already existing one (${room.roomId})`);
-
-
+            console.log(`Client ${socket.id} tried to create new room while having an already existing one (${existingRoom.roomId})`);
 
             return; // Return the room if it exists
         }
@@ -129,27 +127,34 @@ export class ServerHandlers {
             this.noUsernameError(socket); // If no username is provided, send an error message
             return;
         }
-
-        room = this.database.joinRoom(username, socket.id, roomId); // Join the room in the database
-        const currentPlayerId = this.database.getPlayerIdBySocketId(socket.id); // Get the player ID from the database
-
-        if (room) {
-
-            const idmessage: IdMessage = {
-                playerId: currentPlayerId, // Player ID from room ids
-                roomId: room.roomId, // Room ID from the created room
-            };
-            this.io.to(socket.id).emit(ServerMessageType.ReceiveId, idmessage); // Send the socket ID back to the client
-            socket.join(room.roomId.toString()); // Join the room in the socket
-            this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room); // Send a message back to the client
-
-            console.log(`Client ${socket.id} joined room with username: ${username}`);
-
-        } else {
-
-            this.roomWithIdNotFound(socket, roomId); // If the room does not exist, send an error message
-
+        
+        const roomToJoin = this.database.getRoomByRoomId(roomId);
+        if (!roomToJoin) {
+            this.roomWithIdNotFound(socket, roomId);
+            return;
         }
+
+        if (roomToJoin.isStarted) {
+            const error: ErrorMessage = {
+                errorType: ErrorType.RoomAlreadyStarted,
+                message: `Room with ID (${roomId}) has already started.`
+            };
+            this.io.to(socket.id).emit(ServerMessageType.Error, error);
+            return;
+        }
+
+        const room = this.database.joinRoom(username, socket.id, roomToJoin);
+        const currentPlayerId = this.database.getPlayerIdBySocketId(socket.id); 
+
+        const idmessage: IdMessage = {
+            playerId: currentPlayerId, 
+            roomId: room.roomId,
+        };
+        this.io.to(socket.id).emit(ServerMessageType.ReceiveId, idmessage);
+        socket.join(room.roomId.toString()); 
+        this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room);
+
+        console.log(`Client ${socket.id} joined room with username: ${username}`);
     }
 
     public pickTeamHandler(socket: Socket, team: TeamType, spymaster: boolean) {
