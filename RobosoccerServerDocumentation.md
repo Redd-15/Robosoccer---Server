@@ -179,7 +179,6 @@ interface Player {
   socketId: string;
   name: string;
   team: TeamType | null;
-  isInactive: boolean;
   characters: Character[];
 }
 ```

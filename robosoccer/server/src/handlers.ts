@@ -216,8 +216,8 @@ export class ServerHandlers {
     }
 
     public disconnectHandler(socket: Socket) {
-        console.log(`Client ${socket.id} disconnected, setting status to inactive`);
-        const room = this.database.setPlayerInactive(socket.id); // Leave the room in the database
+        console.log(`Client ${socket.id} disconnected, removing player from room`);
+        const room = this.database.leaveRoom(socket.id); // Leave the room in the database
 
         if (room) { // If the room exists, send a message back to the client
             this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room); // Send a message back to the client

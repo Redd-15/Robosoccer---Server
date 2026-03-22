@@ -34,7 +34,6 @@ export class RobosoccerDatabase {
       socketId: socketId, // Socket ID from socket connection
       name: username,   // Player's name
       team: TeamType.Blue, // Team will be default Blue
-      isInactive: false, // Default to false
       characters: [], // Initialize characters array
     };
 
@@ -132,33 +131,7 @@ export class RobosoccerDatabase {
     }
   }
 
-  public setPlayerInactive(socketId: string): Room | null {
-    // Find the room by socket ID
-    const room = this.getRoomBySocketId(socketId); // Get the room ID from the socket ID
-    if (room) {
-      // Find the player by socket ID in the room
-      const player = room.players.find(player => player.socketId === socketId);
-      if (player) {
-        player.isInactive = true; // Set the player's isInactive property to true
-        return room; // Return the room
-      }
-    }
-    return null; // Return null if the room does not exist
-  }
 
-  public setPlayerActive(socketId: string): Room | null {
-    // Find the room by socket ID
-    const room = this.getRoomBySocketId(socketId); // Get the room ID from the socket ID
-    if (room) {
-      // Find the player by socket ID in the room
-      const player = room.players.find(player => player.socketId === socketId);
-      if (player) {
-        player.isInactive = false; // Set the player's isInactive property to true
-        return room; // Return the room
-      }
-    }
-    return null; // Return null if the room does not exist
-  }
 
   public handleMovement(socketId: string, characterId: number, x: number, y: number): Room | null {
 
