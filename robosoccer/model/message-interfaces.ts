@@ -56,3 +56,8 @@ export interface GameConfigMessage {
     winScore: number;
     countdown: number;
 }
+
+export interface CollisionMessage {
+    playerId: number;
+    characterId: number;
+}

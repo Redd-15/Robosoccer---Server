@@ -1,4 +1,4 @@
-import { TeamType } from "../../model/message-interfaces";
+import { CollisionMessage, TeamType } from "../../model/message-interfaces";
 import { Room } from "../../model/room";
 import { GameConfig } from "./constants";
 
@@ -30,14 +30,15 @@ export class PhysicsEngine {
         });
     }
     
-public updateRoom(room: Room) {
+    public updateRoom(room: Room): CollisionMessage[] {
+        const collisions: CollisionMessage[] = [];
 
     if (room.isStarted) {
 
         if (room.countdownTicks > 0) {
 
             room.countdownTicks --; // Decrease countdown
-            return; // Skip the rest of the loop for this room
+            return collisions;
         }
 
         //Update positions based on velocities
@@ -76,18 +77,20 @@ public updateRoom(room: Room) {
 
             }
             
-            return;
+            return collisions;
         }
 
         // Check collisions between Players and the Ball
         room.players.forEach(p => {
             p.characters.forEach(c => {
-                this.handleCircleCollision(c, room.ball, GameConfig.PLAYER_RADIUS, GameConfig.BALL_RADIUS);
+                if (this.handleCircleCollision(c, room.ball, GameConfig.PLAYER_RADIUS, GameConfig.BALL_RADIUS)) {
+                    collisions.push({ playerId: p.id, characterId: c.id });
+                }
             });
         });
     }
 
-    return;
+    return collisions;
 }
 
 private handleWallCollision(entity: any, radius: number, isBall: boolean = false, room?: Room): boolean {
@@ -141,7 +144,7 @@ private handleWallCollision(entity: any, radius: number, isBall: boolean = false
     
     }
 
-    private handleCircleCollision(c1: any, c2: any, r1: number, r2: number) {
+    private handleCircleCollision(c1: any, c2: any, r1: number, r2: number): boolean {
         const dx = c2.x - c1.x;
         const dy = c2.y - c1.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -172,6 +175,8 @@ private handleWallCollision(entity: any, radius: number, isBall: boolean = false
                 c2.x_velocity -= nx * bounce;
                 c2.y_velocity -= ny * bounce;
             }
+            return true;
         }
+        return false;
     }
 }

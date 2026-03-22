@@ -48,7 +48,11 @@ export class SocketHandler {
       
       // 2. Calculate the physics for each active room
       activeRooms.forEach(room => {
-        this.physicsEngine.updateRoom(room);
+        const collisions = this.physicsEngine.updateRoom(room);
+
+        collisions.forEach(collision => {
+            this.io.to(room.roomId.toString()).emit(ServerMessageType.Collision, collision);
+        });
 
         // 3. Send the updated room back to the clients
         this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room);
