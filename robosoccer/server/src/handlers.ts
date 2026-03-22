@@ -50,7 +50,8 @@ export class ServerHandlers {
                 goalMinY: GameConfig.GOAL_MIN_Y,
                 goalMaxY: GameConfig.GOAL_MAX_Y,
                 winScore: GameConfig.WIN_SCORE,
-                countdown: GameConfig.COUNTDOWN_SEC
+                countdown: GameConfig.COUNTDOWN_SEC,
+                characterNumber: GameConfig.CHARACTERS_PER_PLAYER
             });
             socket.join(room.roomId.toString()); // Join the room in the socket
             console.log(`Client ${socket.id} tried to create new room while having an already existing one (${room.roomId})`);
@@ -78,7 +79,8 @@ export class ServerHandlers {
             goalMinY: GameConfig.GOAL_MIN_Y,
             goalMaxY: GameConfig.GOAL_MAX_Y,
             winScore: GameConfig.WIN_SCORE,
-            countdown: GameConfig.COUNTDOWN_SEC
+            countdown: GameConfig.COUNTDOWN_SEC,
+            characterNumber: GameConfig.CHARACTERS_PER_PLAYER
         });
         socket.join(room.roomId.toString()); // Join the room in the socket
         console.log(`Client (SID: ${socket.id}) created room (ID: ${room.roomId}) with username: ${username}`);
@@ -115,7 +117,8 @@ export class ServerHandlers {
                 goalMinY: GameConfig.GOAL_MIN_Y,
                 goalMaxY: GameConfig.GOAL_MAX_Y,
                 winScore: GameConfig.WIN_SCORE,
-                countdown: GameConfig.COUNTDOWN_SEC
+                countdown: GameConfig.COUNTDOWN_SEC,
+                characterNumber: GameConfig.CHARACTERS_PER_PLAYER
             });
             this.io.to(socket.id).emit(ServerMessageType.ReceiveId, idmessage); // Send the socket ID back to the client
             this.io.to(socket.id).emit(ServerMessageType.ReceiveRoom, existingRoom); // Send a message back to the client
@@ -163,7 +166,8 @@ export class ServerHandlers {
             goalMinY: GameConfig.GOAL_MIN_Y,
             goalMaxY: GameConfig.GOAL_MAX_Y,
             winScore: GameConfig.WIN_SCORE,
-            countdown: GameConfig.COUNTDOWN_SEC
+            countdown: GameConfig.COUNTDOWN_SEC,
+            characterNumber: GameConfig.CHARACTERS_PER_PLAYER
         });
         socket.join(room.roomId.toString()); 
         this.io.to(room.roomId.toString()).emit(ServerMessageType.ReceiveRoom, room);
