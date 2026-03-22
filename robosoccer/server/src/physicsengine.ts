@@ -11,18 +11,22 @@ export class PhysicsEngine {
         const blueTeamX = GameConfig.FIELD_WIDTH / 4;
         const redTeamX = GameConfig.FIELD_WIDTH * 3 / 4;
 
-        bluePlayers.forEach((player, index) => {
-            player.x = blueTeamX;
-            player.y = (GameConfig.FIELD_HEIGHT / (bluePlayers.length + 1)) * (index + 1);
-            player.x_velocity = 0;
-            player.y_velocity = 0;
+        bluePlayers.forEach(player => {
+            player.characters.forEach((character, index) => {
+                character.x = blueTeamX;
+                character.y = (GameConfig.FIELD_HEIGHT / (player.characters.length + 1)) * (index + 1);
+                character.x_velocity = 0;
+                character.y_velocity = 0;
+            });
         });
 
-        redPlayers.forEach((player, index) => {
-            player.x = redTeamX;
-            player.y = (GameConfig.FIELD_HEIGHT / (redPlayers.length + 1)) * (index + 1);
-            player.x_velocity = 0;
-            player.y_velocity = 0;
+        redPlayers.forEach(player => {
+            player.characters.forEach((character, index) => {
+                character.x = redTeamX;
+                character.y = (GameConfig.FIELD_HEIGHT / (player.characters.length + 1)) * (index + 1);
+                character.x_velocity = 0;
+                character.y_velocity = 0;
+            });
         });
     }
     
@@ -38,16 +42,17 @@ public updateRoom(room: Room) {
 
         //Update positions based on velocities
         room.players.forEach(p => {
+            if (p.team !== TeamType.Spectator) {
+                p.characters.forEach(c => {
+                    c.x_velocity = Math.max(-GameConfig.MAX_SPEED, Math.min(GameConfig.MAX_SPEED, c.x_velocity));
+                    c.y_velocity = Math.max(-GameConfig.MAX_SPEED, Math.min(GameConfig.MAX_SPEED, c.y_velocity));
 
-            if (p.team != TeamType.Spectator) {
-            p.x_velocity = Math.max(-GameConfig.MAX_SPEED, Math.min(GameConfig.MAX_SPEED, p.x_velocity));
-            p.y_velocity = Math.max(-GameConfig.MAX_SPEED, Math.min(GameConfig.MAX_SPEED, p.y_velocity));
-
-            p.x += p.x_velocity;
-            p.y += p.y_velocity;
-            p.x_velocity *= GameConfig.FRICTION; // Apply friction
-            p.y_velocity *= GameConfig.FRICTION;
-            this.handleWallCollision(p, GameConfig.PLAYER_RADIUS);
+                    c.x += c.x_velocity;
+                    c.y += c.y_velocity;
+                    c.x_velocity *= GameConfig.FRICTION; // Apply friction
+                    c.y_velocity *= GameConfig.FRICTION;
+                    this.handleWallCollision(c, GameConfig.PLAYER_RADIUS);
+                });
             }
         });
 
@@ -76,7 +81,9 @@ public updateRoom(room: Room) {
 
         // Check collisions between Players and the Ball
         room.players.forEach(p => {
-            this.handleCircleCollision(p, room.ball, GameConfig.PLAYER_RADIUS, GameConfig.BALL_RADIUS);
+            p.characters.forEach(c => {
+                this.handleCircleCollision(c, room.ball, GameConfig.PLAYER_RADIUS, GameConfig.BALL_RADIUS);
+            });
         });
     }
 

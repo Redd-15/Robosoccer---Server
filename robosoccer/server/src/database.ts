@@ -1,5 +1,6 @@
 import { Room } from "../../model/room"
 import { Player } from "../../model/player"
+import { Character } from "../../model/character"
 import { TeamType } from "../../model/message-interfaces";
 import { GameConfig } from "./constants";
 import { get } from "http";
@@ -13,6 +14,19 @@ export class RobosoccerDatabase {
     this.roomdb = []; // Initialize as null, can be assigned a Room object later
   }
 
+  public createCharacter(playerId: number, characterId: number): Character {
+    // Create a new character object
+    const newCharacter: Character = {
+      id: characterId,      // Character ID 
+      playerId: playerId, // Player ID from room ids
+      x: 0, // Default x position
+      y: 0,  // Default y position
+      x_velocity: 0, // Default x velocity
+      y_velocity: 0, // Default y velocity
+    };
+    return newCharacter; // Return the new character object
+  }
+
   public createPlayer(username: string, id: number, socketId: string): Player {
     // Create a new player object
     const newPlayer: Player = {
@@ -21,11 +35,14 @@ export class RobosoccerDatabase {
       name: username,   // Player's name
       team: TeamType.Blue, // Team will be default Blue
       isInactive: false, // Default to false
-      x: 0, // Default x position
-      y: 0,  // Default y position
-      x_velocity: 0, // Default x velocity
-      y_velocity: 0, // Default y velocity
+      characters: [], // Initialize characters array
     };
+
+    for (let i = 0; i < GameConfig.CHARACTERS_PER_PLAYER; i++) {
+      const character = this.createCharacter(newPlayer.id, i);
+      newPlayer.characters.push(character);
+    }
+
     return newPlayer; // Return the new player object
   }
 
@@ -143,17 +160,20 @@ export class RobosoccerDatabase {
     return null; // Return null if the room does not exist
   }
 
-  public handleMovement(socketId: string, x: number, y: number): Room | null {
+  public handleMovement(socketId: string, characterId: number, x: number, y: number): Room | null {
 
     const room = this.getRoomBySocketId(socketId); // Get the room ID from the socket ID
     if (room) {
       // Find the player by socket ID in the room
       const player = room.players.find(player => player.socketId === socketId);
       if (player && room.countdownTicks === 0 && player.team !== TeamType.Spectator) { // Only allow movement if the player exists (and is not a spectator) and countdown is not active
-        const constrainedX = Math.max(-GameConfig.MAX_ACCELERATION, Math.min(GameConfig.MAX_ACCELERATION, x));
-        const constrainedY = Math.max(-GameConfig.MAX_ACCELERATION, Math.min(GameConfig.MAX_ACCELERATION, y));
-        player.x_velocity += constrainedX; // Update the player's x velocity
-        player.y_velocity += constrainedY; // Update the player's y velocity
+        const character = player.characters.find(c => c.id === characterId);
+        if (character) {
+          const constrainedX = Math.max(-GameConfig.MAX_ACCELERATION, Math.min(GameConfig.MAX_ACCELERATION, x));
+          const constrainedY = Math.max(-GameConfig.MAX_ACCELERATION, Math.min(GameConfig.MAX_ACCELERATION, y));
+          character.x_velocity += constrainedX; // Update the character's x velocity
+          character.y_velocity += constrainedY; // Update the character's y velocity
+        }
       }
       return room; // Return the room
     }

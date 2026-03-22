@@ -247,9 +247,9 @@ export class ServerHandlers {
         }
     }
 
-    public movementMessageHandler(socket: Socket, x: any, y: any) {
-        console.log(`Client ${socket.id} sent movement message: x=${x}, y=${y}`);
-        const room = this.database.handleMovement(socket.id, x, y); // Handle the movement in the database
+    public movementMessageHandler(socket: Socket, characterId: number, x: any, y: any) {
+        console.log(`Client ${socket.id} sent movement message: characterId=${characterId}, x=${x}, y=${y}`);
+        const room = this.database.handleMovement(socket.id, characterId, x, y); // Handle the movement in the database
         if (!room) {
             this.roomNotFoundError(socket); // If the room does not exist, send an error message
         }
