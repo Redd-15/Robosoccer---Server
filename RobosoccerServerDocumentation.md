@@ -78,6 +78,12 @@ These are the messages that the server can send to the client.
 -   **Payload**: `GameConfigMessage`
 -   -**Description**: Sent to a client after they join a room. It contains the configuration of the game, such as field dimensions, player and ball radius, etc. Keep in mind that the LEFT goal is point for red and right goal is point for blue, so left is the red gate, right is the blue gate!
 
+### `Collision`
+
+-   **Type**: `collision`
+-   **Payload**: `CollisionMessage`
+-   **Description**: Sent to all clients in a room when a player collides with the ball. The payload contains the `playerId` and `characterId` of the colliding player.
+
 ## 5. Client to Server Messages
 
 These are the messages that the client can send to the server.
@@ -269,6 +275,15 @@ interface GameConfigMessage {
 }
 ```
 
+### `CollisionMessage`
+
+```typescript
+interface CollisionMessage {
+  playerId: number;
+  characterId: number;
+}
+```
+
 ### Enums
 
 #### `ServerMessageType`
@@ -282,7 +297,8 @@ enum ServerMessageType {
   GameOver = 'gameOver',
   Error = 'error',
   ReconnectAck = 'reconnectAck',
-  ReceiveConfig = 'receive-config'
+  ReceiveConfig = 'receive-config',
+  Collision = 'collision'
 }
 ```
 
